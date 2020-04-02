@@ -12,4 +12,5 @@ urlpatterns = [
     path('users/new-verification-email', NewVerificationEmail.as_view()),
     path('users/password-reset', PasswordReset.as_view()),
     path('users/registration', RegistrationAPIView.as_view()),
+    path('profile/summary', ProfileSummaryData.as_view(), name='summary'),
 ]
