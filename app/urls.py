@@ -1,5 +1,7 @@
 from django.urls import path
 
+from .views.board_setup import BoardSetupView
+from .views.profile_data import ProfileDataView
 from .views.user import (
     DeleteUserView, EmailEditView, LoginHelp,
     PasswordReset, RegistrationAPIView, NewVerificationEmail
@@ -12,5 +14,6 @@ urlpatterns = [
     path('users/new-verification-email', NewVerificationEmail.as_view()),
     path('users/password-reset', PasswordReset.as_view()),
     path('users/registration', RegistrationAPIView.as_view()),
-    path('profile/summary', ProfileSummaryData.as_view(), name='summary'),
+    path('profile/board-setup', BoardSetupView.as_view()),
+    path('profile/data', ProfileDataView.as_view(), name='profile_data'),
 ]

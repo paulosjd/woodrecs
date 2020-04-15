@@ -26,12 +26,15 @@ class Profile(models.Model):
         help_text='Height in cm',
         blank=True
     )
-    gender = models.CharField(
-        choices=[('', ' '), ('m', 'Male'), ('f', 'Female')],
-        default='',
-        max_length=1,
-        blank=True
+    board_width = models.IntegerField(
+        help_text='Number of holds(x)',
+        default=8,
     )
+    board_height = models.IntegerField(
+        help_text='Number of holds(y)',
+        default=11,
+    )
+
     objects = ProfileManager()
 
     @property
