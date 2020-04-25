@@ -6,6 +6,11 @@ class BoardSetup:
     x_margin = 38
     y_margin = 34
 
+    # board_height = 334
+    # board_width = 380
+    # x_margin = 16
+    # y_margin = 16
+
     def __init__(self, x_num=7, y_num=10):
         self.x_num = x_num
         self.y_num = y_num
@@ -22,3 +27,10 @@ class BoardSetup:
             self.x_coords.append(self.x_margin + int(n * self.x_spacing))
         for n in range(1, self.y_num):
             self.y_coords.append(self.y_margin + int(n * self.y_spacing))
+
+
+bs = BoardSetup(x_num=14, y_num=13)
+print('xcoords:')
+print(bs.x_coords)
+print('ycoords:')
+print(bs.y_coords)
