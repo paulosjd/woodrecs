@@ -29,8 +29,8 @@ class BoardSetup:
             self.y_coords.append(self.y_margin + int(n * self.y_spacing))
 
 
-bs = BoardSetup(x_num=14, y_num=13)
-print('xcoords:')
-print(bs.x_coords)
-print('ycoords:')
-print(bs.y_coords)
+# bs = BoardSetup(x_num=14, y_num=13)
+# print('xcoords:')
+# print(bs.x_coords)
+# print('ycoords:')
+# print(bs.y_coords)

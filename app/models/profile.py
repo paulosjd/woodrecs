@@ -1,7 +1,3 @@
-from datetime import datetime
-from operator import itemgetter
-from typing import List, Optional
-
 from django.db import models
 
 from .managers.profile_manager import ProfileManager
@@ -36,11 +32,6 @@ class Profile(models.Model):
     )
 
     objects = ProfileManager()
-
-    @property
-    def age(self) -> Optional[int]:
-        if self.birth_year:
-            return datetime.now().year - self.birth_year
 
     def __str__(self):
         return self.user.username + '_profile'
