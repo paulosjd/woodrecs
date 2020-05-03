@@ -4,6 +4,8 @@ from django.db import models
 
 class ProfileBoard(models.Model):
 
+    # TODO make latest added -- only one with flag first ... order by id /last added
+
     name = models.CharField(
         max_length=50,
         verbose_name='Board name',
@@ -13,7 +15,8 @@ class ProfileBoard(models.Model):
     board_dim = models.CharField(
         max_length=4,
         help_text='For board dimension of 11 x 8, expect "1108"',
-        validators=[RegexValidator(regex='^.{4}$', message='Length must be 4', code='nomatch')],
+        validators=[RegexValidator(regex='^.{4}$', message='Length must be 4',
+                                   code='nomatch')],
         # db_index=True,
     )
     hold_set = models.CharField(

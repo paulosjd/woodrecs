@@ -6,7 +6,8 @@ from app.models.managers.route_manager import RouteManager
 
 class Route(models.Model):
 
-    grade_choices = ['6a', '6a+', '6b', '6b+', '6c', '6c+', '7a', '7a+', '7b', '7b+', '7c', '7c+', '8a']
+    grade_choices = ['6a', '6a+', '6b', '6b+', '6c', '6c+', '7a', '7a+', '7b',
+                     '7b+', '7c', '7c+', '8a']
 
     name = models.CharField(
         max_length=50,

@@ -16,26 +16,52 @@ class BoardSetupView(APIView):
         height = int(request.data.get('board_height', 0))
         width = int(request.data.get('board_width', 0))
         hold_set = request.data.get('hold_set')
+        board_name = request.data.get('board_name')
+        board_id = request.data.get('board_id')
 
-        if height in range(10, 19) and width in range(6, 13):
-            profile.board_height = height
-            profile.board_width = width
-            profile.save()
+        # TODO GETE BY ID INSTEAD WHICH SEND ACROSS
 
+        if all([height in range(10, 19), width in range(6, 13), board_name,
+                isinstance(hold_set, dict)]):
+            # profile.board_height = height
+            # profile.board_width = width
+            # profile.save()
+            print(board_id)
             profile_board = None
-            if isinstance(hold_set, dict):
-                pb_data = dict(profile=profile,
-                               board_dim=f'{str(width).zfill(2)}{str(height).zfill(2)}')
-                profile_board, _ = ProfileBoard.objects.get_or_create(**pb_data)
-                profile_board.hold_set = json.dumps(hold_set)
-                # TODO catch/handle integrity error
+            board_dim = f'{str(width).zfill(2)}{str(height).zfill(2)}'
+            if board_id:
                 try:
-                    profile_board.save()
+                    profile_board = ProfileBoard.objects.get(id=board_id)
+                    print(profile_board)
+                    profile_board.name = board_name
+                    profile_board.board_dim = board_dim
+                except ProfileBoard.DoesNotExist:
+                    return Response({'error': 'Not found'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            if not profile_board and not board_id:
+                try:
+                    profile_board = ProfileBoard.objects.create(
+                        profile=profile, name=board_name, board_dim=board_dim
+                    )
                 except IntegrityError as e:
-                    return Response({'error': e}, status=status.HTTP_400_BAD_REQUEST)
+                    print('except on create')
+                    print(e)
+                    return Response({'error': str(e)},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
-            profile_data = ProfileDataView.get_profile_data(request.user.profile, profile_board=profile_board)
-            return Response(profile_data, status=status.HTTP_200_OK)
+            profile_board.hold_set = json.dumps(hold_set)
+            # TODO catch/handle integrity error
+            try:
+                profile_board.save()
+            except IntegrityError as e:
+                return Response({'error': e},
+                                status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({'status': 'Bad request', 'errors': 'Invalid'},
+            return Response(
+                ProfileDataView.get_profile_data(
+                    request.user.profile
+                ),
+                status=status.HTTP_200_OK
+            )
+        return Response({'error': 'missing data'},
                         status=status.HTTP_400_BAD_REQUEST)

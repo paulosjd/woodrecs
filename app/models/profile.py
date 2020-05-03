@@ -22,6 +22,7 @@ class Profile(models.Model):
         help_text='Height in cm',
         blank=True
     )
+    # TODO - remove the two below - not used anymore ?
     board_width = models.IntegerField(
         help_text='Number of holds(x)',
         default=8,
