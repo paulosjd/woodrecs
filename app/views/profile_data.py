@@ -31,7 +31,7 @@ class ProfileDataView(APIView):
 
         boards_data = []
         profile_boards = ProfileBoard.objects.filter(
-            profile=profile).order_by('id').all()
+            profile=profile).order_by('-id').all()
         for board in profile_boards:
             board_setup = BoardSetup(
                 x_num=int(board.board_dim[:2]), y_num=int(board.board_dim[2:])
