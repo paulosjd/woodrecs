@@ -43,10 +43,11 @@ class ProfileDataView(APIView):
                 **{f'{s}_coords': getattr(board_setup, f'{s}_coords')
                    for s in ['x', 'y']}
             })
+        boards_data.reverse()
         profile_data.update({
             'boards': boards_data
         })
-        print(profile_data)
+        # print(profile_data)
         return profile_data
 
     def get(self, request):

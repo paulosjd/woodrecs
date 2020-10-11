@@ -17,23 +17,33 @@ class Route(models.Model):
         max_length=3,
         default='',
     )
-    sequence = models.CharField(
+    # Need save validate that '5,7,9,...' maps with xholds to give ...
+    x_holds = models.CharField(
         max_length=50,
         verbose_name='Hold sequence',
         help_text="Comma-separated list of holds, e.g. 'A4,D3,E5,G5,K6'",
     )
-    created_by = models.ForeignKey(
-        'app.Profile',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='custom_routes',
+    y_holds = models.CharField(
+        max_length=50,
+        verbose_name='Hold sequence',
+        help_text="Comma-separated list of holds, e.g. 'A4,D3,E5,G5,K6'",
+    )
+    ticked = models.BooleanField(
+        default=False
+    )
+    notes = models.CharField(
+        max_length=120,
+        default='',
+    )
+    profile_board = models.ForeignKey(
+        'app.ProfileBoard',
+        on_delete=models.CASCADE,
+        related_name='routes',
     )
 
     objects = RouteManager()
 
     class Meta:
-        # unique_together = ('name', 'profile')
         pass
 
     def __str__(self):
@@ -43,6 +53,8 @@ class Route(models.Model):
         return f'Route: {self.name}'
 
     def save(self, **kwargs):
-        # if upload_fields_len != self.num_values + 1:
-        #     raise ValidationError('split upload_field_labels and')
+        print(self.x_holds)
+        if len(str(self.x_holds).split(',')) != len(
+                str(self.x_holds).split(',')):
+            raise ValidationError('split len holds mismatch')
         super(Route, self).save(**kwargs)
