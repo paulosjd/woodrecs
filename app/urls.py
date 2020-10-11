@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views.board_setup import BoardSetupView
+from .views.problems import ProblemsView
 from .views.profile_data import ProfileDataView
 from .views.user import (
     DeleteUserView, EmailEditView, LoginHelp,
@@ -15,5 +16,6 @@ urlpatterns = [
     path('users/password-reset', PasswordReset.as_view()),
     path('users/registration', RegistrationAPIView.as_view()),
     path('profile/board-setup', BoardSetupView.as_view()),
+    path('profile/problems', ProblemsView.as_view()),
     path('profile/data', ProfileDataView.as_view(), name='profile_data'),
 ]

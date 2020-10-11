@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.db import IntegrityError
 from rest_framework import status
@@ -7,6 +8,8 @@ from rest_framework.views import APIView
 
 from app.models import ProfileBoard
 from app.views.profile_data import ProfileDataView
+
+log = logging.getLogger(__name__)
 
 
 class BoardSetupView(APIView):
@@ -50,16 +53,15 @@ class BoardSetupView(APIView):
                     profile=profile, name=board_name, board_dim=board_dim
                 )
             except IntegrityError as e:
-                print('except on create')
-                print(e)
+                log.error(e)
                 return Response({'error': str(e)},
                                 status=status.HTTP_400_BAD_REQUEST)
 
         profile_board.hold_set = json.dumps(hold_set)
-        # TODO catch/handle integrity error
         try:
             profile_board.save()
         except IntegrityError as e:
+            log.error(e)
             return Response({'error': e},
                             status=status.HTTP_400_BAD_REQUEST)
 
