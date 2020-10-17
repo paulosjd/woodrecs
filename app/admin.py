@@ -4,7 +4,7 @@ from .forms import (
    CustomUserAdmin
 )
 from .models import (
-    Profile, ProfileBoard, User
+    Profile, ProfileBoard, Route, User
 )
 
 admin.site.register(User, CustomUserAdmin)
@@ -17,4 +17,9 @@ class ProfileAdmin(admin.ModelAdmin):
 
 @admin.register(ProfileBoard)
 class ProfileBoardAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Route)
+class RouteAdmin(admin.ModelAdmin):
     pass

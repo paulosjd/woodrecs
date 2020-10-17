@@ -1,11 +1,12 @@
 import json
 import logging
+from collections import Counter
 
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app.models import ProfileBoard, Route
+from app.models import ProfileBoard
 from app.serializers import ProfileSerializer
 from app.utils.board_setup import BoardSetup
 
@@ -18,12 +19,6 @@ class ProfileDataView(APIView):
         super().__init__(*args, **kwargs)
         self.profile_params = []
 
-    def dispatch(self, request, *args, **kwargs):
-        # profile_id = kwargs.pop('profile_id', '')
-        # if profile_id.isdigit():
-        #     self.shared_profile = get_object_or_404(Profile, id=profile_id)
-        return super().dispatch(request, *args, **kwargs)
-
     @staticmethod
     def get_profile_data(profile):
         profile_ser = ProfileSerializer(instance=profile)
@@ -31,23 +26,44 @@ class ProfileDataView(APIView):
 
         boards_data = []
         profile_boards = ProfileBoard.objects.filter(
-            profile=profile).order_by('-id').all()
+            profile=profile).prefetch_related('routes').order_by('-id')
+
         for board in profile_boards:
+
+            routes_set = board.routes.all()
+            grades = set(a.grade for a in routes_set)
+            problems = {
+                grade: [
+                    {'board_id': board.id,
+                     'x_holds': rec.x_holds.split(','),
+                     'y_holds': rec.y_holds.split(','),
+                     **{k: getattr(rec, k) for k in
+                        ['id', 'name', 'ticked', 'notes']}}
+                    for rec in routes_set if rec.grade == grade
+                ]
+                for grade in grades
+            }
+
             board_setup = BoardSetup(
-                x_num=int(board.board_dim[:2]), y_num=int(board.board_dim[2:])
+                x_num=int(board.board_dim[:2]),
+                y_num=int(board.board_dim[2:])
             )
+
             boards_data.append({
                 'board_id': str(board.id),
+                'grades': list(grades),
+                'problems': problems,
                 'hold_set': json.loads(board.hold_set),
                 'board_name': board.name,
                 **{f'{s}_coords': getattr(board_setup, f'{s}_coords')
                    for s in ['x', 'y']}
             })
+
         boards_data.reverse()
         profile_data.update({
             'boards': boards_data
         })
-        # print(profile_data)
+
         return profile_data
 
     def get(self, request):

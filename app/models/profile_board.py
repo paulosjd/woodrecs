@@ -4,8 +4,6 @@ from django.db import models
 
 class ProfileBoard(models.Model):
 
-    # TODO make latest added -- only one with flag first ... order by id /last added
-
     name = models.CharField(
         max_length=50,
         verbose_name='Board name',

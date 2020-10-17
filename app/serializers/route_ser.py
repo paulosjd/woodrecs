@@ -4,17 +4,25 @@ from app.models import Route
 
 
 class RouteSerializer(serializers.ModelSerializer):
-    # available_unit_options = serializers.ListField(required=False)
-    # name = serializers.CharField()
-    # unit_name = serializers.CharField(required=False)
-    # unit_symbol = serializers.CharField(required=False)
-    # ideal_info = serializers.CharField(required=False, allow_blank=True)
-    # ideal_info_url = serializers.CharField(required=False, allow_blank=True)
-    # num_values = serializers.CharField(required=False, allow_blank=True)
-    # id = serializers.IntegerField(required=False)
+    board_id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(required=False)
 
     class Meta:
         model = Route
         fields = (
-            'name',
+            'id', 'name', 'grade', 'x_holds', 'y_holds', 'ticked', 'notes',
+            'board_id'
         )
+
+# Example usage
+# ser = RouteSerializer(data={
+#     'board_id': request.data.get('board_id'),
+#     **{k: getattr(route_obj, k) for k in
+#        ['id', 'name', 'grade', 'x_holds', 'y_holds', 'ticked',
+#         'notes']}
+# })
+# if ser.is_valid():
+#     return Response(ser.data,
+#                     status=status.HTTP_200_OK)
+# return Response({'error': ''},
+#                 status=status.HTTP_400_BAD_REQUEST)
