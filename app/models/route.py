@@ -13,11 +13,14 @@ class Route(models.Model):
 
     name = models.CharField(
         max_length=50,
-        help_text='e.g. Body weight',
     )
     grade = models.CharField(
         max_length=3,
         default='',
+    )
+    rating = models.IntegerField(
+        blank=True,
+        default=0,
     )
     x_holds = models.CharField(
         max_length=50,

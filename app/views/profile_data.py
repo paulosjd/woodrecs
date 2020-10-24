@@ -38,7 +38,7 @@ class ProfileDataView(APIView):
                      'x_holds': rec.x_holds.split(','),
                      'y_holds': rec.y_holds.split(','),
                      **{k: getattr(rec, k) for k in
-                        ['id', 'name', 'ticked', 'notes']}}
+                        ['id', 'name', 'ticked', 'rating', 'notes']}}
                     for rec in routes_set if rec.grade == grade
                 ]
                 for grade in grades

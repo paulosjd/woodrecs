@@ -11,7 +11,7 @@ class RouteSerializer(serializers.ModelSerializer):
         model = Route
         fields = (
             'id', 'name', 'grade', 'x_holds', 'y_holds', 'ticked', 'notes',
-            'board_id'
+            'rating', 'board_id'
         )
 
 # Example usage
@@ -19,7 +19,7 @@ class RouteSerializer(serializers.ModelSerializer):
 #     'board_id': request.data.get('board_id'),
 #     **{k: getattr(route_obj, k) for k in
 #        ['id', 'name', 'grade', 'x_holds', 'y_holds', 'ticked',
-#         'notes']}
+#         'rating', 'notes']}
 # })
 # if ser.is_valid():
 #     return Response(ser.data,

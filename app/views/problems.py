@@ -1,4 +1,3 @@
-import json
 import logging
 
 from django.db import IntegrityError
@@ -8,7 +7,6 @@ from rest_framework.views import APIView
 
 from app.models import Route
 from app.models import ProfileBoard
-from app.serializers.route_ser import RouteSerializer
 from app.views.profile_data import ProfileDataView
 
 log = logging.getLogger(__name__)
@@ -24,8 +22,11 @@ class ProblemsView(APIView):
         if not all(data.values()):
             return Response({'error': 'missing data'},
                             status=status.HTTP_400_BAD_REQUEST)
+        data['rating'] = request.data.get('rating') or 0
+        data['notes'] = request.data.get('notes', '')
         try:
             data['board_id'] = int(data['board_id'])
+            data['rating'] = int(data['rating'])
         except ValueError:
             return Response({'error': 'invalid data'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -53,6 +54,7 @@ class ProblemsView(APIView):
             return Response({'error': 'no record for board_id'},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        # Create new problem
         if not problem_id:
             try:
                 Route.objects.create(**data)
@@ -67,57 +69,25 @@ class ProblemsView(APIView):
                 status=status.HTTP_200_OK
             )
 
-        board_id = request.data.get('board_id')
-        board_name = request.data.get('board_name')
-        edit_name = request.data.get('edit_problem')
-        # if edit_problem:
-        #     return self.edit_problem(request.user.profile, board_id, board_name)
-        return Response({'error': 'missing data'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        # Delete existing problem
+        if request.data.get('delete_problem'):
+            return self.delete_problem(request.user.profile,
+                                       problem_id)
 
-        delete_problem = request.data.get('delete_problem')
-        if delete_problem:
-            return self.delete_problem(request.user.profile, board_id)
-
-        height = int(request.data.get('board_height', 0))
-        width = int(request.data.get('board_width', 0))
-        hold_set = request.data.get('hold_set', {})
-        # print([
-        #     height in range(10, 19), width in range(6, 13), board_name
-        # ])
-        if not all([
-            height in range(10, 19), width in range(6, 13), board_name
-        ]):
-            return Response({'error': 'missing data'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        board_dim = f'{str(width).zfill(2)}{str(height).zfill(2)}'
-        if board_id:
-            try:
-                profile_board = ProfileBoard.objects.get(id=board_id)
-            except ProfileBoard.DoesNotExist:
-                return Response({'error': 'Record not found'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            profile_board.name = board_name
-            profile_board.board_dim = board_dim
-        else:
-            try:
-                profile_board = ProfileBoard.objects.create(
-                    profile=profile, name=board_name, board_dim=board_dim
-                )
-            except IntegrityError as e:
-                log.error(e)
-                return Response({'error': str(e)},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-        profile_board.hold_set = json.dumps(hold_set)
+        # Update existing problem
         try:
-            profile_board.save()
+            problem = Route.objects.get(id=problem_id)
+        except Route.DoesNotExist:
+            return Response({'error': 'no record for problem_id'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        for k, v in data.items():
+            setattr(problem, k, v)
+        try:
+            problem.save()
         except IntegrityError as e:
             log.error(e)
-            return Response({'error': e},
+            return Response({'error': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
-
         return Response(
             ProfileDataView.get_profile_data(
                 request.user.profile
@@ -126,40 +96,16 @@ class ProblemsView(APIView):
         )
 
     @staticmethod
-    def edit_problem(profile, board_id, board_name):
-        pass
-        # if board_id:
-        #     try:
-        #         profile_board = ProfileBoard.objects.get(id=board_id)
-        #     except ProfileBoard.DoesNotExist:
-        #         return Response({'error': 'Record not found'},
-        #                         status=status.HTTP_400_BAD_REQUEST)
-        #     profile_board.name = board_name
-        #     profile_board.save()
-        #     return Response(
-        #         ProfileDataView.get_profile_data(
-        #             profile
-        #         ),
-        #         status=status.HTTP_200_OK
-        #     )
-        # return Response({'error': 'board_id not provided'},
-        #                 status=status.HTTP_400_BAD_REQUEST)
-
-    @staticmethod
-    def delete_problem(profile, board_id):
-        pass
-        # if board_id:
-        #     try:
-        #         profile_board = ProfileBoard.objects.get(id=board_id)
-        #     except ProfileBoard.DoesNotExist:
-        #         return Response({'error': 'Record not found'},
-        #                         status=status.HTTP_400_BAD_REQUEST)
-        #     profile_board.delete()
-        #     return Response(
-        #         ProfileDataView.get_profile_data(
-        #             profile
-        #         ),
-        #         status=status.HTTP_200_OK
-        #     )
-        # return Response({'error': 'board_id not provided'},
-        #                 status=status.HTTP_400_BAD_REQUEST)
+    def delete_problem(profile, problem_id):
+        try:
+            problem = Route.objects.get(id=problem_id)
+        except Route.DoesNotExist:
+            return Response({'error': 'Record not found'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        problem.delete()
+        return Response(
+            ProfileDataView.get_profile_data(
+                profile
+            ),
+            status=status.HTTP_200_OK
+        )

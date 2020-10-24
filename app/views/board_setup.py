@@ -37,7 +37,7 @@ class BoardSetupView(APIView):
         ]):
             return Response({'error': 'missing data'},
                             status=status.HTTP_400_BAD_REQUEST)
-        print(board_id)
+
         board_dim = f'{str(width).zfill(2)}{str(height).zfill(2)}'
         if board_id:
             try:
