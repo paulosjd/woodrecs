@@ -15,13 +15,22 @@ log = logging.getLogger(__name__)
 class ProblemsView(APIView):
 
     def post(self, request):
-        print(request.data)
+        try:
+            problem_id = int(request.data.get('problem_id', 0))
+        except ValueError:
+            return Response({'error': 'invalid data'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Delete existing problem
+        if request.data.get('delete_problem') and problem_id:
+            return self.delete_problem(request.user.profile, problem_id)
 
         data = {k: request.data.get(k) for k in
                 ['name', 'grade', 'board_id', 'x_holds', 'y_holds']}
         if not all(data.values()):
             return Response({'error': 'missing data'},
                             status=status.HTTP_400_BAD_REQUEST)
+
         data['rating'] = request.data.get('rating') or 0
         data['notes'] = request.data.get('notes', '')
         try:
@@ -30,6 +39,7 @@ class ProblemsView(APIView):
         except ValueError:
             return Response({'error': 'invalid data'},
                             status=status.HTTP_400_BAD_REQUEST)
+
         if len(data['x_holds']) != len(data['y_holds']):
             return Response({'error': 'x_holds y_holds len not equal'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -42,11 +52,6 @@ class ProblemsView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            problem_id = int(request.data.get('problem_id', 0))
-        except ValueError:
-            return Response({'error': 'invalid data'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        try:
             data['profile_board'] = ProfileBoard.objects.get(
                 id=data.pop('board_id')
             )
@@ -57,22 +62,16 @@ class ProblemsView(APIView):
         # Create new problem
         if not problem_id:
             try:
-                Route.objects.create(**data)
+                route = Route.objects.create(**data)
             except IntegrityError as e:
                 log.error(e)
                 return Response({'error': str(e)},
                                 status=status.HTTP_400_BAD_REQUEST)
             return Response(
-                ProfileDataView.get_profile_data(
-                    request.user.profile
-                ),
+                {'problem_id': route.id,
+                 **ProfileDataView.get_profile_data(request.user.profile)},
                 status=status.HTTP_200_OK
             )
-
-        # Delete existing problem
-        if request.data.get('delete_problem'):
-            return self.delete_problem(request.user.profile,
-                                       problem_id)
 
         # Update existing problem
         try:
