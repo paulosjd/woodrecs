@@ -17,7 +17,7 @@ log = get_task_logger(__name__)
 User = get_user_model()
 
 
-@celery_app.task
+# @celery_app.task
 def send_username_reminder_email(email):
     """ Sends an email containing the username which corresponds to the account
     with the provided email address, if it exists

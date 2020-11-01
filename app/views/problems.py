@@ -21,6 +21,11 @@ class ProblemsView(APIView):
             return Response({'error': 'invalid data'},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        # Update problem ticked bool
+        if 'is_ticked' in request.data and problem_id:
+            return self.set_problem_ticked(request.data['is_ticked'],
+                                           request.user.profile, problem_id)
+
         # Delete existing problem
         if request.data.get('delete_problem') and problem_id:
             return self.delete_problem(request.user.profile, problem_id)
@@ -108,3 +113,27 @@ class ProblemsView(APIView):
             ),
             status=status.HTTP_200_OK
         )
+
+    @staticmethod
+    def set_problem_ticked(tick_bool, profile, problem_id):
+        try:
+            problem = Route.objects.get(id=problem_id)
+        except Route.DoesNotExist:
+            return Response({'error': 'Record not found'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        should_update = False
+        if tick_bool and not problem.ticked:
+            problem.ticked = True
+            should_update = True
+        if not tick_bool and problem.ticked:
+            problem.ticked = False
+            should_update = True
+
+        if should_update:
+            problem.save()
+
+            return Response(ProfileDataView.get_profile_data(profile),
+                            status=status.HTTP_200_OK)
+
+        return Response({}, status=status.HTTP_200_OK)

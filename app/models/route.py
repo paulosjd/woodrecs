@@ -57,12 +57,18 @@ class Route(models.Model):
     def __repr__(self):
         return f'Route: {self.name}'
 
+    @staticmethod
+    def hold_is_invalid(s):
+        if not isinstance(
+                s, str) or not s.isdigit() or int(s) not in range(100):
+            return True
+
     def has_hold_error(self) -> Optional[str]:
         for s in str(self.x_holds).split(','):
-            if not isinstance(s, str) or not s.isdigit():
+            if self.hold_is_invalid(s):
                 return 'invalid x_hold'
         for s in str(self.y_holds).split(','):
-            if not isinstance(s, str) or not s.isdigit():
+            if self.hold_is_invalid(s):
                 return 'invalid y_hold'
         if len(str(self.x_holds).split(',')) != len(
                 str(self.x_holds).split(',')):
