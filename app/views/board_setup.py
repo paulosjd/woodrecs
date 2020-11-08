@@ -29,9 +29,6 @@ class BoardSetupView(APIView):
         height = int(request.data.get('board_height', 0))
         width = int(request.data.get('board_width', 0))
         hold_set = request.data.get('hold_set', {})
-        # print([
-        #     height in range(10, 19), width in range(6, 13), board_name
-        # ])
         if not all([
             height in range(10, 19), width in range(6, 13), board_name
         ]):

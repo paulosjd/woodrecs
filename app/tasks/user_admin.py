@@ -29,12 +29,11 @@ def send_username_reminder_email(email):
         user = User.objects.get(email=email)
     except ObjectDoesNotExist:
         return
-    tmpl_c = {'username': user.username, 'home_login': FRONTEND_HOME + '/login'}
+    tmpl_c = {'username': user.username, 'home_login': FRONTEND_HOME}
     email_body = render_to_string('username_reminder.html', tmpl_c)
-
     try:
         send_mail(
-            'Body Metrics Tracker - username reminder',
+            'Username reminder for your Den Bud',
             email_body, EMAIL_HOST_USER,
             [user.email], fail_silently=True,
         )
@@ -42,7 +41,7 @@ def send_username_reminder_email(email):
         log.debug(e)
 
 
-@celery_app.task
+# @celery_app.task
 def send_password_reset_email(email_dct):
     """ Invokes Django builtin password reset functionality
     :param email_dct: dict with an 'email' key for an email address string
@@ -77,7 +76,7 @@ def send_verification_email(user_id):
         email_body = render_to_string('account_activation_email.html', tmpl_c)
         try:
             send_mail(
-                'Verify your Health Metric Tracker profile',
+                'Verify your Den Bud profile',
                 email_body, EMAIL_HOST_USER, [user.email],
                 fail_silently=False,
             )

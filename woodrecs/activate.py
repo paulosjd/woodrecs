@@ -42,5 +42,5 @@ class PasswordResetIsCompleteView(PasswordResetCompleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['home_login'] = FRONTEND_HOME + '/login'
+        context['home_login'] = FRONTEND_HOME
         return context

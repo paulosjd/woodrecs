@@ -27,10 +27,3 @@ class BoardSetup:
             self.x_coords.append(self.x_margin + int(n * self.x_spacing))
         for n in range(1, self.y_num):
             self.y_coords.append(self.y_margin + int(n * self.y_spacing))
-
-
-# bs = BoardSetup(x_num=14, y_num=13)
-# print('xcoords:')
-# print(bs.x_coords)
-# print('ycoords:')
-# print(bs.y_coords)
